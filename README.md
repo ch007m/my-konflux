@@ -16,12 +16,19 @@ cd konflux-ci
 - Create the cluster
 ```bash 
 kind create cluster --name konflux --config kind-config.yaml
-podman update --pids-limit 4096 konflux-control-plane
 ```
 - Deploy the dependencies, konflux
 ```bash 
 ./deploy-deps.sh
 ./deploy-konflux.sh
+```
+**Note**: If you get the famous docker limit rate, then pull the image locally and push it to the kind cluster created !
+```bash
+docker login
+docker pull postgres:15
+kind load docker-image -n konflux postgres:15
+docker pull registry:2
+kind load docker-image -n konflux registry:2
 ```
 
 - Deploy demo users
@@ -43,8 +50,7 @@ echo "Save the pem key to the file !!"
 ```
 
 - To allow Konflux to send PRs to your application repositories, the GithubApp secret should be created inside the `build-service` and the `integration-service` namespaces. See additional details under [Configuring GitHub Application Secrets](https://github.com/konflux-ci/konflux-ci/blob/main/docs/github-secrets.md).
-```bash 
-
+```bash
 kubectl -n pipelines-as-code create secret generic pipelines-as-code-secret \
   --from-literal=github-application-id=OTQ3MjI4 \
   --from-literal=webhook.secret=a29uZmx1eGNp \
@@ -60,9 +66,10 @@ kubectl -n integration-service create secret generic pipelines-as-code-secret \
   --from-literal=webhook.secret=a29uZmx1eGNp \
   --from-file=github-private-key=githubapp-konfluxci.private-key.pem
 ```
+
 - Patch the `smee.yaml` config, replace `` with your smee proxy url and deploy smee
 ```bash
-kubectl -f ./smee/smee-client.yaml
+kubectl apply -f ../konflux-ci/smee/smee-client.yaml
 kubectl patch deployment \
   gosmee-client \
   --namespace smee-client \
@@ -73,6 +80,7 @@ kubectl patch deployment \
   "http://pipelines-as-code-controller.pipelines-as-code:8080"
 ]}]'
 ```
+
 - (optional) Create a kubernetes secret for the konflux user to push the images to quay or download images from `dockerhub`
 ```bash 
 podman login quay.io -u <QUAY_USERNAME> -p <QUAY_PASSWORD>
