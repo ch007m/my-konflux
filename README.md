@@ -36,6 +36,9 @@ podman pull registry:2
 podman save registry:2 -o registry.tar
 kind load image-archive registry.tar -n konflux
 ```
+To avoid such a docker issue, patch the kind config file to mount your `creds-registry` file (e.g. docker config.json or podman auth.json)
+as documented [here](https://kind.sigs.k8s.io/docs/user/private-registries/#mount-a-config-file-to-each-node).
+
 - Install the `image-controller` able to push your images on quay.io (and probably another registry !). See instructions [here](https://github.com/konflux-ci/konflux-ci/blob/main/docs/quay.md#automatically-provision-quay-repositories-for-container-images) to create a new Quay Application, got a token, etc
 ```bash
 ./deploy-image-controller.sh $(pass quay/ch007m/konfluxci/OAuthToken) <QUAY_ORG>
