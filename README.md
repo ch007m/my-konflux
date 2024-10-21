@@ -60,24 +60,37 @@ echo "Save the pem key to the file !!"
 ```
 
 - To allow Konflux to send PRs to your application repositories, the GithubApp secret should be created inside the `build-service` and the `integration-service` namespaces. See additional details under [Configuring GitHub Application Secrets](https://github.com/konflux-ci/konflux-ci/blob/main/docs/github-secrets.md).
+- 
+**Note**: Store the application, id, secret and key in `password` store or equivalent !
+
 ```bash
+pass github/apps/konfluxci/
+github/apps/konfluxci
+├── app_id
+├── client_id
+├── client_secret
+├── private_key
+└── webhook_secret
+
+pass github/apps/konfluxci/private_key > private_key.pem
+
 kubectl -n pipelines-as-code delete secret pipelines-as-code-secret
 kubectl -n pipelines-as-code create secret generic pipelines-as-code-secret \
-  --from-literal=github-application-id=947228 \
-  --from-literal=webhook.secret=konfluxci \
-  --from-file=github-private-key=githubapp-konfluxci.private-key.pem
+  --from-literal=github-application-id=$(pass github/apps/konfluxci/app_id) \
+  --from-literal=webhook.secret=$(pass github/apps/konfluxci/webhook_secret) \
+  --from-file=github-private-key=private_key.pem)
 
 kubectl -n build-service delete secret pipelines-as-code-secret
 kubectl -n build-service create secret generic pipelines-as-code-secret \
-  --from-literal=github-application-id=947228 \
-  --from-literal=webhook.secret=konfluxci \
-  --from-file=github-private-key=githubapp-konfluxci.private-key.pem
+  --from-literal=github-application-id=$(pass github/apps/konfluxci/app_id) \
+  --from-literal=webhook.secret=$(pass github/apps/konfluxci/webhook_secret) \
+  --from-file=github-private-key=private_key.pem)
 
 kubectl -n integration-service delete secret pipelines-as-code-secret
 kubectl -n integration-service create secret generic pipelines-as-code-secret \
-  --from-literal=github-application-id=947228 \
-  --from-literal=webhook.secret=konfluxci \
-  --from-file=github-private-key=githubapp-konfluxci.private-key.pem
+  --from-literal=github-application-id=$(pass github/apps/konfluxci/app_id) \
+  --from-literal=webhook.secret=$(pass github/apps/konfluxci/webhook_secret) \
+  --from-file=github-private-key=private_key.pem)
 ```
 
 - Patch the `smee.yaml` config, replace `` with your smee proxy url and deploy smee
