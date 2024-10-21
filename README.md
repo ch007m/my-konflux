@@ -30,6 +30,10 @@ kind load docker-image -n konflux postgres:15
 docker pull registry:2
 kind load docker-image -n konflux registry:2
 ```
+- Install the `image-controller` able to push your images on quay.io (and probably another registry !). See instructions [here](https://github.com/konflux-ci/konflux-ci/blob/main/docs/quay.md#automatically-provision-quay-repositories-for-container-images) to create a new Quay Application, got a token, etc
+```bash
+./deploy-image-controller.sh $TOKEN $ORGANIZATION
+```
 
 - Deploy demo users
 ```bash 
@@ -104,4 +108,8 @@ username: user1
 password: password
 ```
 
-kubectl get ns smee-client -o json | jq '.spec.finalizers = []' | kubectl replace --raw "/api/v1/namespaces/smee-client/finalize" -f -
+## How to play
+
+Two namespaces have been created to play with Konflux: `user-ns1` and `user-ns2`.
+
+Do not forget that to integrate your GitHub repository with the platform, you have to use your GitHub Application created instead of the one proposed by default by Konflux `https://github.com/apps/konflux-staging`
