@@ -24,11 +24,17 @@ kind create cluster --name konflux --config kind-config.yaml
 ```
 **Note**: If you get the famous docker limit rate, then pull the image locally and push it to the kind cluster created !
 ```bash
-docker login
-docker pull postgres:15
-kind load docker-image -n konflux postgres:15
-docker pull registry:2
-kind load docker-image -n konflux registry:2
+podman pull postgres:15
+podman save postgres:15 -o postgres.tar
+kind load image-archive postgres.tar -n konflux
+
+podman pull openresty/openresty:1.25.3.1-0-jammy
+podman save openresty/openresty:1.25.3.1-0-jammy -o openresty.tar
+kind load image-archive openresty.tar -n konflux
+
+podman pull registry:2
+podman save registry:2 -o registry.tar
+kind load image-archive registry.tar -n konflux
 ```
 - Install the `image-controller` able to push your images on quay.io (and probably another registry !). See instructions [here](https://github.com/konflux-ci/konflux-ci/blob/main/docs/quay.md#automatically-provision-quay-repositories-for-container-images) to create a new Quay Application, got a token, etc
 ```bash
@@ -91,7 +97,7 @@ podman login quay.io -u <QUAY_USERNAME> -p <QUAY_PASSWORD>
 podman login https://index.docker.io -u <QUAY_USERNAME>-p <QUAY_PASSWORD>
 cat /run/user/1000/containers/auth.json | jq -c . > creds-registry.json
 kubectl -n user-ns1 delete secret creds-registry
-kubectl -n user-ns1 create secret generic creds-registry --from-file=.dockerconfigjson=/run/user/1000/containers/auth.json
+kubectl -n user-ns1 create secret generic creds-registry --from-file=.dockerconfigjson=creds-registry.json
 ```
 - If Konflux was installed on a cluster hosted in a remote machine, SSH port-forwarding can be used to access. Open an additional terminal and run the following command (make sure to add the details of your remote machine and user):
 ```bash
