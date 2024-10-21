@@ -25,7 +25,7 @@ kind create cluster --name konflux --config kind-config.yaml
 **Note**: If you get the famous docker limit rate, then pull the image locally and push it to the kind cluster created !
 ```bash
 podman pull postgres:15
-podman save postgres:15 -o postgres.tar
+podman save postgres:15 -o postgres.tar | kind load image-archive -n konflux -
 kind load image-archive postgres.tar -n konflux
 
 podman pull openresty/openresty:1.25.3.1-0-jammy
@@ -38,7 +38,7 @@ kind load image-archive registry.tar -n konflux
 ```
 - Install the `image-controller` able to push your images on quay.io (and probably another registry !). See instructions [here](https://github.com/konflux-ci/konflux-ci/blob/main/docs/quay.md#automatically-provision-quay-repositories-for-container-images) to create a new Quay Application, got a token, etc
 ```bash
-./deploy-image-controller.sh $TOKEN $ORGANIZATION
+./deploy-image-controller.sh $(pass quay/ch007m/konfluxci/OAuthToken) <QUAY_ORG>
 ```
 
 - Deploy demo users
@@ -133,5 +133,4 @@ password: password
 ## How to play
 
 Two namespaces have been created to play with Konflux: `user-ns1` and `user-ns2`.
-
-Do not forget that to integrate your GitHub repository with the platform, you have to use your GitHub Application created instead of the one proposed by default by Konflux `https://github.com/apps/konflux-staging`
+...
