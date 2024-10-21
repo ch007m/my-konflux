@@ -51,14 +51,6 @@ kind load image-archive registry.tar -n konflux
 **Note**: For Homepage URL you can insert https://localhost:9443/ (it doesn't matter) and for Webhook URL insert the smee client's webhook proxy URL from previous steps.
 **Note**: Per the instructions on the link, generate and download the private key and create a secret on the cluster providing the location of the private key, the App ID, and the openssl-generated secret created during the process.
 
-- The GithubApp private key should be downloaded and saved to the file `githubapp-konfluxci.private-key.pem` under the project
-```bash
-git clone git@github.com:ch007m/my-konflux.git
-cd my-konflux
-touch githubapp-konfluxci.private-key.pem
-echo "Save the pem key to the file !!"
-```
-
 - To allow Konflux to send PRs to your application repositories, the GithubApp secret should be created inside the `build-service` and the `integration-service` namespaces. See additional details under [Configuring GitHub Application Secrets](https://github.com/konflux-ci/konflux-ci/blob/main/docs/github-secrets.md).
 - 
 **Note**: Store the application, id, secret and key in `password` store or equivalent !
