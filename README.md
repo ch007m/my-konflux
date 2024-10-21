@@ -61,19 +61,22 @@ echo "Save the pem key to the file !!"
 
 - To allow Konflux to send PRs to your application repositories, the GithubApp secret should be created inside the `build-service` and the `integration-service` namespaces. See additional details under [Configuring GitHub Application Secrets](https://github.com/konflux-ci/konflux-ci/blob/main/docs/github-secrets.md).
 ```bash
+kubectl -n pipelines-as-code delete secret pipelines-as-code-secret
 kubectl -n pipelines-as-code create secret generic pipelines-as-code-secret \
-  --from-literal=github-application-id=OTQ3MjI4 \
-  --from-literal=webhook.secret=a29uZmx1eGNp \
+  --from-literal=github-application-id=947228 \
+  --from-literal=webhook.secret=konfluxci \
   --from-file=github-private-key=githubapp-konfluxci.private-key.pem
 
+kubectl -n build-service delete secret pipelines-as-code-secret
 kubectl -n build-service create secret generic pipelines-as-code-secret \
-  --from-literal=github-application-id=OTQ3MjI4 \
-  --from-literal=webhook.secret=a29uZmx1eGNp \
+  --from-literal=github-application-id=947228 \
+  --from-literal=webhook.secret=konfluxci \
   --from-file=github-private-key=githubapp-konfluxci.private-key.pem
 
+kubectl -n integration-service delete secret pipelines-as-code-secret
 kubectl -n integration-service create secret generic pipelines-as-code-secret \
-  --from-literal=github-application-id=OTQ3MjI4 \
-  --from-literal=webhook.secret=a29uZmx1eGNp \
+  --from-literal=github-application-id=947228 \
+  --from-literal=webhook.secret=konfluxci \
   --from-file=github-private-key=githubapp-konfluxci.private-key.pem
 ```
 
