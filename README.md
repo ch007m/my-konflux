@@ -91,10 +91,10 @@ kubectl -n user-ns1 create secret generic creds-registry --from-file=.dockerconf
 ```
 - If Konflux was installed on a cluster hosted in a remote machine, SSH port-forwarding can be used to access. Open an additional terminal and run the following command (make sure to add the details of your remote machine and user):
 ```bash
-ssh -L 9443:localhost:9443 $USER@$VM_IP
+ssh -i $HOME/.ssh/id_rsa -L 9443:localhost:9443 $USER@$VM_IP
 
 Example:
-ssh -L 9443:localhost:9443 snowdrop@10.0.77.131
+ssh -i $HOME/.ssh/id_rsa_snowdrop_openstack -L 9443:localhost:9443 snowdrop@10.0.77.131
 ```
 
 The UI will be available at https://localhost:9443. You can login using a test user: `user1` or `user2`.
