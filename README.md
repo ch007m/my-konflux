@@ -24,17 +24,23 @@ kind create cluster --name konflux --config kind-config.yaml
 ```
 **Note**: If you get the famous docker limit rate, then pull the image locally and push it to the kind cluster created !
 ```bash
-podman pull postgres:15
-podman save postgres:15 -o postgres.tar | kind load image-archive -n konflux -
-kind load image-archive postgres.tar -n konflux
+IMAGE=postgres:15
+podman pull $IMAGE
+podman save $IMAGE | kind load image-archive -n konflux /dev/stdin
 
-podman pull openresty/openresty:1.25.3.1-0-jammy
-podman save openresty/openresty:1.25.3.1-0-jammy -o openresty.tar
-kind load image-archive openresty.tar -n konflux
+IMAGE=openresty/openresty:1.25.3.1-0-jammy
+podman pull $IMAGE
+podman save $IMAGE | kind load image-archive -n konflux /dev/stdin
 
-podman pull registry:2
-podman save registry:2 -o registry.tar
-kind load image-archive registry.tar -n konflux
+IMAGE=registry:2
+podman pull $IMAGE
+podman save $IMAGE | kind load image-archive -n konflux /dev/stdin
+
+IMAGE=registry.redhat.io/rhel8/python-39:1-120.1684740828
+// Use your user & password created here: https://access.redhat.com/terms-based-registry/token/snowdrop
+podman login registry.redhat.io
+podman pull $IMAGE
+podman save $IMAGE | kind load image-archive -n konflux /dev/stdin
 ```
 To avoid such a docker issue, patch the kind config file to mount your `creds-registry` file (e.g. docker config.json or podman auth.json)
 as documented [here](https://kind.sigs.k8s.io/docs/user/private-registries/#mount-a-config-file-to-each-node).
