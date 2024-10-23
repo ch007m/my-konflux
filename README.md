@@ -13,35 +13,22 @@ chmod +x /usr/local/bin/kind
 git clone https://github.com/konflux-ci/konflux-ci.git
 cd konflux-ci
 ```
+- Rename the file `kind-config.yaml` to `my-kind-config.yaml` and add a mlountPoint to share your registry creds file as documented [here](https://kind.sigs.k8s.io/docs/user/private-registries/#mount-a-config-file-to-each-node).
+```yaml
+  extraMounts:
+  - containerPath: /var/lib/kubelet/config.json
+    hostPath: /home/snowdrop/temp/auth.json
+```
 - Create the cluster
 ```bash 
-kind create cluster --name konflux --config kind-config.yaml
+kind create cluster --name konflux --config my-kind-config.yaml
 ```
 - Deploy the dependencies, konflux
 ```bash 
 ./deploy-deps.sh
 ./deploy-konflux.sh
 ```
-**Note**: If you get the famous docker limit rate, then pull the image locally and push it to the kind cluster created !
-```bash
-IMAGE=postgres:15
-podman pull $IMAGE
-podman save $IMAGE | kind load image-archive -n konflux /dev/stdin
 
-IMAGE=openresty/openresty:1.25.3.1-0-jammy
-podman pull $IMAGE
-podman save $IMAGE | kind load image-archive -n konflux /dev/stdin
-
-IMAGE=registry:2
-podman pull $IMAGE
-podman save $IMAGE | kind load image-archive -n konflux /dev/stdin
-
-IMAGE=registry.redhat.io/rhel8/python-39:1-120.1684740828
-// Use your user & password created here: https://access.redhat.com/terms-based-registry/token/snowdrop
-podman login registry.redhat.io
-podman pull $IMAGE
-podman save $IMAGE | kind load image-archive -n konflux /dev/stdin
-```
 To avoid such a docker issue, patch the kind config file to mount your `creds-registry` file (e.g. docker config.json or podman auth.json)
 as documented [here](https://kind.sigs.k8s.io/docs/user/private-registries/#mount-a-config-file-to-each-node).
 
