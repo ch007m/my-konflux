@@ -1,3 +1,32 @@
+## How to guide idpbuilder
+
+- Verify that the applications below are installed on the host machine:
+  - podman or docker
+  - git
+
+- Install idpbuilder as [documented](https://cnoe.io/docs/reference-implementation/installations/idpbuilder/quick-start).
+- git clone the forked project to use the branch created to deploy using idpbuilder
+```bash
+git clone https://github.com/ch007m/fork-konflux-ci.git
+cd fork-konflux-ci && git checkout -b idpbuilder
+cd ..
+```
+- Create a cluster and deploy the konflux packages
+```bash
+alias idpbuilder= idp
+export KIND_EXPERIMENTAL_PROVIDER=podman
+export DOCKER_HOST="unix:///var/run/docker.sock"
+cd fork-konflux-ci
+idp create \
+      --color \
+      --build-name konflux \
+      --kind-config ./my-konflux-cfg.yaml \
+      -p idp/dependencies \
+      -p idp/konflux \
+      --recreate
+cd ..
+```
+
 ##  How to guide
 
 - Install kind and follow instructions here: https://github.com/konflux-ci/konflux-ci?tab=readme-ov-file#bootstrapping-the-cluster
