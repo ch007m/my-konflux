@@ -9,6 +9,43 @@
 ```bash
 git clone -b idpbuilder https://github.com/ch007m/fork-konflux-ci.git
 ```
+- Create a new kind konfig file locally
+```bash
+cat <<EOF > my-konflux-cfg.yaml
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+nodes:
+- role: control-plane
+  labels:
+    ingress-ready: "true"
+  extraMounts:
+    - containerPath: /var/lib/kubelet/config.json
+      hostPath: $HOME/.config/containers/auth.json
+  extraPortMappings:
+  ## From IDP config - Begin ##
+  - containerPort: 443
+    hostPort: 8443
+    protocol: TCP
+  ## From IDP config - End ##
+  - containerPort: 8888 #30010
+    hostPort: 8888
+    protocol: TCP
+  - containerPort: 9443 #30011
+    hostPort: 9443
+    protocol: TCP
+
+## From IDP config - Begin ##
+containerdConfigPatches:
+  - |-
+    [plugins."io.containerd.grpc.v1.cri".registry.mirrors."gitea.cnoe.localtest.me:8443"]
+      endpoint = ["https://gitea.cnoe.localtest.me"]
+    [plugins."io.containerd.grpc.v1.cri".registry.configs."gitea.cnoe.localtest.me".tls]
+      insecure_skip_verify = true
+## From IDP config - End ##
+EOF
+```
+- Change within the cfg file the `hostPath: /home/snowdrop/temp/auth.json` to point locally to your podman `auth.json` or docker `config.json` which includes
+  your registry credentials. This is needed to avoid to get the `docker rate limit` issue !!
 - Create a cluster and deploy the konflux packages
 ```bash
 alias idp=idpbuilder
@@ -19,7 +56,7 @@ idp create \
       --color \
       --build-name my-konflux \
       --host <IP_VM> \
-      --kind-config ./fork-konflux-ci/my-konflux-cfg.yaml \
+      --kind-config my-konflux-cfg.yaml \
       -p fork-konflux-ci/idp/dependencies \
       -p fork-konflux-ci/idp/konflux \
       -p fork-konflux-ci/idp/testing \      
