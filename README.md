@@ -11,7 +11,7 @@ git clone -b idpbuilder https://github.com/ch007m/fork-konflux-ci.git
 ```
 - Create a cluster and deploy the konflux packages
 ```bash
-alias idpbuilder=idp
+alias idp=idpbuilder
 export KIND_EXPERIMENTAL_PROVIDER=podman
 export DOCKER_HOST="unix:///var/run/docker.sock"
 
