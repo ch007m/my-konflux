@@ -62,7 +62,15 @@ idp create \
       -p fork-konflux-ci/idp/testing \      
       --recreate
 ```
-**Note**: The `<IP_VM>` should be expressed as `IP.nip.io` to allow to access the UI outside the VM.
+**Note**: 
+- The `<IP_VM>` should be expressed as `IP.nip.io` to allow to access the UI outside the VM.
+- If you install konflux on yoour machine, then no need to pass the parameter `--host`. 
+
+When all the pods are up and running, then access the ui using the url: `https://konflux.cnoe.localtest.me:8443/application-pipeleine` or `https://konflux.IP.nip.io:8443` if you passed the parameter `--host`
+
+**Warning**: If some resources are not sync (such as Bundles CR needed by the build-service and registry), then open the argocd console `https://argocd.cnoe.localtest.me:8443/` and resync the resources. You can get the passwords using the command `idp get secrets`
+
+
 
 ##  How to guide
 
