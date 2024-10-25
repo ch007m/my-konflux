@@ -1,4 +1,4 @@
-## How to guide idpbuilder
+## How to guide using idpbuilder
 
 - Verify that the applications below are installed on the host machine:
   - podman or docker
