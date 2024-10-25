@@ -1,0 +1,29 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: tekton-jobs
+  namespace: tekton-pipelines
+---
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  namespace: tekton-pipelines
+  name: tekton-jobs-role
+rules:
+  - apiGroups: [""]
+    resources: ["secrets"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+---
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: tekton-jobs-role-binding
+  namespace: tekton-pipelines
+subjects:
+  - kind: ServiceAccount
+    name: tekton-jobs
+    namespace: tekton-pipelines
+roleRef:
+  kind: Role
+  name: tekton-jobs-role
+  apiGroup: rbac.authorization.k8s.io

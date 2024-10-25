@@ -7,25 +7,25 @@
 - Install idpbuilder as [documented](https://cnoe.io/docs/reference-implementation/installations/idpbuilder/quick-start).
 - git clone the forked project to use the branch created to deploy using idpbuilder
 ```bash
-git clone https://github.com/ch007m/fork-konflux-ci.git
-cd fork-konflux-ci && git checkout -b idpbuilder
-cd ..
+git clone -b idpbuilder https://github.com/ch007m/fork-konflux-ci.git
 ```
 - Create a cluster and deploy the konflux packages
 ```bash
-alias idpbuilder= idp
+alias idpbuilder=idp
 export KIND_EXPERIMENTAL_PROVIDER=podman
 export DOCKER_HOST="unix:///var/run/docker.sock"
-cd fork-konflux-ci
+
 idp create \
       --color \
-      --build-name konflux \
-      --kind-config ./my-konflux-cfg.yaml \
-      -p idp/dependencies \
-      -p idp/konflux \
+      --build-name my-konflux \
+      --host <IP_VM> \
+      --kind-config ./fork-konflux-ci/my-konflux-cfg.yaml \
+      -p fork-konflux-ci/idp/dependencies \
+      -p fork-konflux-ci/idp/konflux \
+      -p fork-konflux-ci/idp/testing \      
       --recreate
-cd ..
 ```
+**Note**: The `<IP_VM>` should be expressed as `IP.nip.io` to allow to access the UI outside the VM.
 
 ##  How to guide
 
