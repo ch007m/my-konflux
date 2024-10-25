@@ -4,7 +4,7 @@
   - podman or docker
   - git
 
-- Install idpbuilder as [documented](https://cnoe.io/docs/reference-implementation/installations/idpbuilder/quick-start).
+- Install idpbuilder (>= 0.8) as [documented](https://cnoe.io/docs/reference-implementation/installations/idpbuilder/quick-start).
 - git clone the forked project to use the branch created to deploy using idpbuilder
 ```bash
 git clone -b idpbuilder https://github.com/ch007m/fork-konflux-ci.git
