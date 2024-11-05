@@ -60,8 +60,6 @@ When all the pods are up and running, then access the ui using the url: `https:/
 
 **Warning**: If some resources are not sync (such as Bundles CR needed by the build-service and registry), then open the argocd console `https://argocd.cnoe.localtest.me:8443/` and resync the resources. You can get the passwords using the command `idp get secrets`
 
-
-
 ##  How to guide
 
 - Install kind and follow instructions here: https://github.com/konflux-ci/konflux-ci?tab=readme-ov-file#bootstrapping-the-cluster
