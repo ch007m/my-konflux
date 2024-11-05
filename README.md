@@ -1,7 +1,7 @@
 ## How to guide using idpbuilder
 
 - Verify that the applications below are installed on the host machine:
-  - podman or docker
+  - podman (>= 5.2) or docker
   - git
 
 - Install idpbuilder (>= 0.8) as [documented](https://cnoe.io/docs/reference-implementation/installations/idpbuilder/quick-start).
@@ -22,26 +22,16 @@ nodes:
     - containerPath: /var/lib/kubelet/config.json
       hostPath: $HOME/.config/containers/auth.json
   extraPortMappings:
-  ## From IDP config - Begin ##
   - containerPort: 443
     hostPort: 8443
     protocol: TCP
-  ## From IDP config - End ##
-  - containerPort: 8888 #30010
-    hostPort: 8888
-    protocol: TCP
-  - containerPort: 9443 #30011
-    hostPort: 9443
-    protocol: TCP
 
-## From IDP config - Begin ##
 containerdConfigPatches:
   - |-
     [plugins."io.containerd.grpc.v1.cri".registry.mirrors."gitea.cnoe.localtest.me:8443"]
       endpoint = ["https://gitea.cnoe.localtest.me"]
     [plugins."io.containerd.grpc.v1.cri".registry.configs."gitea.cnoe.localtest.me".tls]
       insecure_skip_verify = true
-## From IDP config - End ##
 EOF
 ```
 - Change within the cfg file the `hostPath: /home/snowdrop/temp/auth.json` to point locally to your podman `auth.json` or docker `config.json` which includes
@@ -50,7 +40,7 @@ EOF
 ```bash
 alias idp=idpbuilder
 export KIND_EXPERIMENTAL_PROVIDER=podman
-export DOCKER_HOST="unix:///var/run/docker.sock"
+export DOCKER_HOST="unix:///run/user/501/podman/podman.sock"
 
 idp create \
       --color \
