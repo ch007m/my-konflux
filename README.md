@@ -86,6 +86,9 @@ idp create \
   --color \
   --build-name my-konflux \
   --kind-config my-konflux-cfg.yaml \
+  -p fork-konflux-ci/idp/dependencies \
+  -p fork-konflux-ci/idp/konflux \
+  -p fork-konflux-ci/idp/testing \  
   -p fork-konflux-ci/idp/secret-plugin \
   -p fork-konflux-ci/idp/github-app-secrets \
   -p fork-konflux-ci/idp/smee \
