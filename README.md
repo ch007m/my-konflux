@@ -16,6 +16,7 @@ kind: Cluster
 apiVersion: kind.x-k8s.io/v1alpha4
 nodes:
 - role: control-plane
+  image: "kindest/node:v1.30.3"
   labels:
     ingress-ready: "true"
   extraMounts:
@@ -34,8 +35,27 @@ containerdConfigPatches:
       insecure_skip_verify = true
 EOF
 ```
-- Change within the cfg file the `hostPath: /home/snowdrop/temp/auth.json` to point locally to your podman `auth.json` or docker `config.json` which includes
-  your registry credentials. This is needed to avoid to get the `docker rate limit` issue !!
+- Change within the cfg file the `hostPath: $HOME/.config/containers/auth.json` to point locally to your podman `auth.json` or docker `config.json` which includes
+  your registry credentials. This is needed to avoid to get the `docker rate limit` issue !
+- If you would like to use: smee, the image-controller and your GitHub application (as documented [here](https://github.com/konflux-ci/konflux-ci/tree/main?tab=readme-ov-file#enable-pipelines-triggering-via-webhooks)) to allow Tekton PaC to talk with your GitHub repositories, then create the following files: 
+  - File containing as k=v pairs the following parameters
+    ```text
+    // path: idp/secret-plugin/secrets/secret_vars.yaml
+    smee_url: https://smee.io/<SMEE_TOKEN>
+  
+    github_app_id: <GITHUB_AP_ID>
+    github_webhook_secret: <GITHUB_WEBHOOK_SECRET>
+    
+    github_private_key: <GITHUB_PRIVATE_KEY> 
+    
+    quay_org: <QUAY_ORG>
+    quay_token: <QUAY_TOKEN>
+    ``` 
+    **Warning**: The `GITHUB_PRIVATE_KEY` is the GitHub application private key file converted as one line string here and where the `\n` has been replaced with `#`. TODO: To be improved !
+  - A kubernetes secret resource file `secrets.yaml` using the result of the following command:
+    ```bash
+    kubectl create secret generic argocd-secret-vars -n argocd --from-file=secret_vars.yaml=idp/secret-plugin/secrets/secret_vars.yaml --dry-run=client -o yaml >> idp/secret-plugin/manifests/secrets.yaml
+    ```
 - Create a cluster and deploy the konflux packages
 ```bash
 alias idp=idpbuilder
@@ -43,18 +63,20 @@ export KIND_EXPERIMENTAL_PROVIDER=podman
 export DOCKER_HOST="unix:///run/user/501/podman/podman.sock"
 
 idp create \
-      --color \
-      --build-name my-konflux \
-      --host <IP_VM> \
-      --kind-config my-konflux-cfg.yaml \
-      -p fork-konflux-ci/idp/dependencies \
-      -p fork-konflux-ci/idp/konflux \
-      -p fork-konflux-ci/idp/testing \      
-      --recreate
+  --color \
+  --build-name my-konflux \
+  --kind-config my-konflux-cfg.yaml \
+  -p fork-konflux-ci/idp/dependencies \
+  -p fork-konflux-ci/idp/konflux \
+  -p fork-konflux-ci/idp/testing \
+  -p fork-konflux-ci/idp/secret-plugin \
+  -p fork-konflux-ci/idp/github-app-secrets \
+  -p fork-konflux-ci/idp/smee \
+  -p fork-konflux-ci/idp/image-controller \
+  --recreate
 ```
-**Note**: 
-- The `<IP_VM>` should be expressed as `IP.nip.io` to allow to access the UI outside the VM.
-- If you install konflux on your machine, then no need to pass the parameter `--host`. 
+
+**Note**: If you plan to install the project on a remote machine, you can pass as parameter to `idpbuilder` the following parameter `--host <IP_VM>` where `<IP_VM>` should be expressed as `IP.nip.io`  or `host.domain` to allow to access the UI outside the VM.
 
 When all the pods are up and running, then access the ui using the url: `https://konflux.cnoe.localtest.me:8443/application-pipeleine` or `https://konflux.IP.nip.io:8443` if you passed the parameter `--host`
 
@@ -128,19 +150,19 @@ kubectl -n pipelines-as-code delete secret pipelines-as-code-secret
 kubectl -n pipelines-as-code create secret generic pipelines-as-code-secret \
   --from-literal=github-application-id=$(pass github/apps/konfluxci/app_id) \
   --from-literal=webhook.secret=$(pass github/apps/konfluxci/webhook_secret) \
-  --from-file=github-private-key=private_key.pem)
+  --from-file=github-private-key=private_key.pem
 
 kubectl -n build-service delete secret pipelines-as-code-secret
 kubectl -n build-service create secret generic pipelines-as-code-secret \
   --from-literal=github-application-id=$(pass github/apps/konfluxci/app_id) \
   --from-literal=webhook.secret=$(pass github/apps/konfluxci/webhook_secret) \
-  --from-file=github-private-key=private_key.pem)
+  --from-file=github-private-key=private_key.pem
 
 kubectl -n integration-service delete secret pipelines-as-code-secret
 kubectl -n integration-service create secret generic pipelines-as-code-secret \
   --from-literal=github-application-id=$(pass github/apps/konfluxci/app_id) \
   --from-literal=webhook.secret=$(pass github/apps/konfluxci/webhook_secret) \
-  --from-file=github-private-key=private_key.pem)
+  --from-file=github-private-key=private_key.pem
 ```
 
 - Patch the `smee.yaml` config, replace `` with your smee proxy url and deploy smee
