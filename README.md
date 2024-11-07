@@ -40,7 +40,7 @@ EOF
 - If you would like to use: smee, the image-controller and your GitHub application (as documented [here](https://github.com/konflux-ci/konflux-ci/tree/main?tab=readme-ov-file#enable-pipelines-triggering-via-webhooks)) to allow Tekton PaC to talk with your GitHub repositories, then create the following files: 
   - File containing as k=v pairs the following parameters
     ```text
-    // path: idp/secret-plugin/secrets/secret_vars.yaml
+    // path: fork-konflux-ci/idp/secret-plugin/secrets/secret_vars.yaml
     smee_url: https://smee.io/<SMEE_TOKEN>
   
     github_app_id: <GITHUB_AP_ID>
@@ -54,7 +54,7 @@ EOF
     **Warning**: The `GITHUB_PRIVATE_KEY` is the GitHub application private key file converted as one line string here and where the `\n` has been replaced with `#`. TODO: To be improved !
   - A kubernetes secret resource file `secrets.yaml` using the result of the following command:
     ```bash
-    kubectl create secret generic argocd-secret-vars -n argocd --from-file=secret_vars.yaml=idp/secret-plugin/secrets/secret_vars.yaml --dry-run=client -o yaml >> idp/secret-plugin/manifests/secrets.yaml
+    kubectl create secret generic argocd-secret-vars -n argocd --from-file=secret_vars.yaml=idp/secret-plugin/secrets/secret_vars.yaml --dry-run=client -o yaml >> fork-konflux-ci/idp/secret-plugin/manifests/secrets.yaml
     ```
 - Create a cluster and deploy the konflux packages
 ```bash
@@ -78,7 +78,7 @@ idp create \
 
 **Note**: If you plan to install the project on a remote machine, you can pass as parameter to `idpbuilder` the following parameter `--host <IP_VM>` where `<IP_VM>` should be expressed as `IP.nip.io`  or `host.domain` to allow to access the UI outside the VM.
 
-When all the pods are up and running, then access the ui using the url: `https://konflux.cnoe.localtest.me:8443/application-pipeleine` or `https://konflux.IP.nip.io:8443` if you passed the parameter `--host`
+When all the pods are up and running, then access the ui using the url: `https://konflux.cnoe.localtest.me:8443/application-pipeline` or `https://konflux.IP.nip.io:8443` if you passed the parameter `--host`
 
 **Warning**: If some resources are not sync (such as Bundles CR needed by the build-service and registry), then open the argocd console `https://argocd.cnoe.localtest.me:8443/` and resync the resources. You can get the passwords using the command `idp get secrets`
 
