@@ -76,7 +76,7 @@ When all the pods are up and running, then access the ui using the url: `https:/
     **Warning**: The `GITHUB_PRIVATE_KEY` is the GitHub application private key file converted as one line string here and where the `\n` has been replaced with `#`. TODO: To be improved !
   - A kubernetes secret resource file `secrets.yaml` using the result of the following command:
     ```bash
-    kubectl create secret generic argocd-secret-vars -n argocd --from-file=secret_vars.yaml=idp/secret-plugin/secrets/secret_vars.yaml --dry-run=client -o yaml >> fork-konflux-ci/idp/secret-plugin/manifests/secrets.yaml
+    kubectl create secret generic argocd-secret-vars -n argocd --from-file=secret_vars.yaml=fork-konflux-ci/idp/secret-plugin/secrets/secret_vars.yaml --dry-run=client -o yaml >> fork-konflux-ci/idp/secret-plugin/manifests/secrets.yaml
     ```
 - Deploy then the additional packages able to install/configure: smee, image-controlle, etc
 ```bash
