@@ -37,7 +37,29 @@ EOF
 ```
 - Change within the cfg file the `hostPath: $HOME/.config/containers/auth.json` to point locally to your podman `auth.json` or docker `config.json` which includes
   your registry credentials. This is needed to avoid to get the `docker rate limit` issue !
-- If you would like to use: smee, the image-controller and your GitHub application (as documented [here](https://github.com/konflux-ci/konflux-ci/tree/main?tab=readme-ov-file#enable-pipelines-triggering-via-webhooks)) to allow Tekton PaC to talk with your GitHub repositories, then create the following files: 
+
+- Create a cluster and deploy the konflux packages
+```bash
+alias idp=idpbuilder
+export DOCKER_HOST="unix://$XDG_RUNTIME_DIR/podman/podman.sock"
+export KIND_EXPERIMENTAL_PROVIDER=podman
+
+idp create \
+  --color \
+  --build-name my-konflux \
+  --kind-config my-konflux-cfg.yaml \
+  -p fork-konflux-ci/idp/dependencies \
+  -p fork-konflux-ci/idp/konflux \
+  -p fork-konflux-ci/idp/testing
+```
+
+**Note**: If you plan to install the project on a remote machine, you can pass as parameter to `idpbuilder` the following parameter `--host <IP_VM>` where `<IP_VM>` should be expressed as `IP.nip.io`  or `host.domain` to allow to access the UI outside the VM.
+
+When all the pods are up and running, then access the ui using the url: `https://konflux.cnoe.localtest.me:8443/application-pipeline` or `https://konflux.IP.nip.io:8443` if you passed the parameter `--host`
+
+**Warning**: If some resources are not sync (such as Bundles CR needed by the build-service and registry), then open the argocd console `https://argocd.cnoe.localtest.me:8443/` and resync the resources. You can get the passwords using the command `idp get secrets`
+
+- If you would like to use: smee, the image-controller and your GitHub application (as documented [here](https://github.com/konflux-ci/konflux-ci/tree/main?tab=readme-ov-file#enable-pipelines-triggering-via-webhooks)) to allow Tekton PaC to talk with your GitHub repositories, then create the following files:
   - File containing as k=v pairs the following parameters
     ```text
     // path: fork-konflux-ci/idp/secret-plugin/secrets/secret_vars.yaml
@@ -56,31 +78,19 @@ EOF
     ```bash
     kubectl create secret generic argocd-secret-vars -n argocd --from-file=secret_vars.yaml=idp/secret-plugin/secrets/secret_vars.yaml --dry-run=client -o yaml >> fork-konflux-ci/idp/secret-plugin/manifests/secrets.yaml
     ```
-- Create a cluster and deploy the konflux packages
+- Deploy then the additional packages able to install/configure: smee, image-controlle, etc
 ```bash
-alias idp=idpbuilder
 export KIND_EXPERIMENTAL_PROVIDER=podman
-export DOCKER_HOST="unix:///run/user/501/podman/podman.sock"
 
 idp create \
   --color \
   --build-name my-konflux \
   --kind-config my-konflux-cfg.yaml \
-  -p fork-konflux-ci/idp/dependencies \
-  -p fork-konflux-ci/idp/konflux \
-  -p fork-konflux-ci/idp/testing \
   -p fork-konflux-ci/idp/secret-plugin \
   -p fork-konflux-ci/idp/github-app-secrets \
   -p fork-konflux-ci/idp/smee \
-  -p fork-konflux-ci/idp/image-controller \
-  --recreate
+  -p fork-konflux-ci/idp/image-controller
 ```
-
-**Note**: If you plan to install the project on a remote machine, you can pass as parameter to `idpbuilder` the following parameter `--host <IP_VM>` where `<IP_VM>` should be expressed as `IP.nip.io`  or `host.domain` to allow to access the UI outside the VM.
-
-When all the pods are up and running, then access the ui using the url: `https://konflux.cnoe.localtest.me:8443/application-pipeline` or `https://konflux.IP.nip.io:8443` if you passed the parameter `--host`
-
-**Warning**: If some resources are not sync (such as Bundles CR needed by the build-service and registry), then open the argocd console `https://argocd.cnoe.localtest.me:8443/` and resync the resources. You can get the passwords using the command `idp get secrets`
 
 ##  How to guide
 
