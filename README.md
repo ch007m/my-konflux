@@ -38,7 +38,7 @@ EOF
 - Change within the cfg file the `hostPath: $HOME/.config/containers/auth.json` to point locally to your podman `auth.json` or docker `config.json` which includes
   your registry credentials. This is needed to avoid to get the `docker rate limit` issue !
 
-- Create a cluster and deploy the konflux's dependencies (cert manager, keycloak, tekton, etc)
+- Create a cluster and deploy the modules which are needed part of the `foundation/basement`: Cert & Trust manager, Self-signed `root` certificate, local registry 
 ```bash
 alias idp=idpbuilder
 export KIND_EXPERIMENTAL_PROVIDER=podman
@@ -47,17 +47,28 @@ idp create \
   --color \
   --name my-konflux \
   --kind-config my-konflux-cfg.yaml \
-  -p fork-konflux-ci/idp/dependencies
+  -p fork-konflux-ci/idp/foundations
 ```
 
 **Note**: If you plan to install the project on a remote machine, you can pass as parameter to `idpbuilder` the following parameter `--host <IP_VM>` where `<IP_VM>` should be expressed as `IP.nip.io`  or `host.domain` to allow to access the UI outside the VM.
 
-- When the Argocd Applications are healthy `kubectl get applications -A`, then deploy konflux
+- Next, install the modules needed by Konflux: keycloak, Tekton & Tekton Pipeline As Code
 ```bash
 idp create \
   --color \
   --name my-konflux \
   --kind-config my-konflux-cfg.yaml \
+  -p fork-konflux-ci/idp/foundations \
+  -p fork-konflux-ci/idp/dependencies
+```
+
+- When the Argocd Applications are healthy `kubectl get applications -A`, then deploy the modules konflux & Testing: user namespace, etc
+```bash
+idp create \
+  --color \
+  --name my-konflux \
+  --kind-config my-konflux-cfg.yaml \
+  -p fork-konflux-ci/idp/foundations \
   -p fork-konflux-ci/idp/dependencies \
   -p fork-konflux-ci/idp/konflux \
   -p fork-konflux-ci/idp/testing
@@ -85,12 +96,21 @@ idp create \
     kubectl create secret generic argocd-secret-vars -n argocd --from-file=secret_vars.yaml=fork-konflux-ci/idp/secret-plugin/secrets/secret_vars.yaml \
        --dry-run=client -o yaml >> fork-konflux-ci/idp/secret-plugin/manifests/secrets.yaml
     ```
+    **Note**: Add the following annotation to the Secret created to be sure that Argocd will install it before the Argocd Secret plugin !
+    ```yaml
+    metadata:
+      name: argocd-secret-vars
+      namespace: argocd
+      annotations:
+        argocd.argoproj.io/sync-wave: "-1"
+    ```
 - Deploy then the additional packages able to install/configure: smee, image-controller, etc
 ```bash
 idp create \
   --color \
   --name my-konflux \
   --kind-config my-konflux-cfg.yaml \
+  -p fork-konflux-ci/idp/foundations \
   -p fork-konflux-ci/idp/dependencies \
   -p fork-konflux-ci/idp/konflux \
   -p fork-konflux-ci/idp/testing \
