@@ -47,8 +47,7 @@ idp create \
   --color \
   --name my-konflux \
   --kind-config my-konflux-cfg.yaml \
-  -p fork-konflux-ci/idp/foundations \
-  -c argocd:fork-konflux-ci/idp/argocd/argocd-cm.yaml # We patch the Argocd configMap to enable Health lua duye to app-of-app pattern
+  -c argocd:fork-konflux-ci/idp/argocd/argocd-cm.yaml # We patch the Argocd ConfigMap to enable Health check using lua due to App-of-App pattern
 ```
 
 **Note**: If you plan to install the project on a remote machine, you can pass as parameter to `idpbuilder` the following parameter `--host <IP_VM>` where `<IP_VM>` should be expressed as `IP.nip.io`  or `host.domain` to allow to access the UI outside the VM.
