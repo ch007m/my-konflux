@@ -50,9 +50,9 @@ idp create \
   -c argocd:fork-konflux-ci/idp/argocd/argocd-cm.yaml # We patch the Argocd ConfigMap to enable Health check using lua due to App-of-App pattern
 ```
 
-**Note**: If you plan to install the project on a remote machine, you can pass as parameter to `idpbuilder` the following parameter `--host <IP_VM>` where `<IP_VM>` should be expressed as `IP.nip.io`  or `host.domain` to allow to access the UI outside the VM.
+**Note**: If you plan to install the project on a remote machine, you can pass to `idpbuilder` the following parameter `--host <IP_VM>` where `<IP_VM>` should be expressed as `<IP>.nip.io`  or `<host.domain>` to allow to access the UI outside the VM.
 
-- Next, install the modules needed by Konflux: keycloak, Tekton & Tekton Pipeline As Code
+- Next, install the modules needed by Konflux: Cert & Trust Manager, keycloak, Tekton & Tekton Pipeline As Code
 ```bash
 idp create \
   --color \
