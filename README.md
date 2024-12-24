@@ -47,7 +47,7 @@ idp create \
   --color \
   --name my-konflux \
   --kind-config my-konflux-cfg.yaml \
-  -c argocd:fork-konflux-ci/idp/argocd/argocd-cm.yaml # We patch the Argocd ConfigMap to enable Health check using lua due to App-of-App pattern
+  -c argocd:fork-konflux-ci/idp/argocd/argocd-cm.yaml
 ```
 
 **Note**: If you plan to install the project on a remote machine, you can pass to `idpbuilder` the following parameter `--host <IP_VM>` where `<IP_VM>` should be expressed as `<IP>.nip.io`  or `<host.domain>` to allow to access the UI outside the VM.
@@ -79,7 +79,7 @@ idp create \
 - If you would like to use: smee, the image-controller and your GitHub application (as documented [here](https://github.com/konflux-ci/konflux-ci/tree/main?tab=readme-ov-file#enable-pipelines-triggering-via-webhooks)) to allow Tekton PaC to talk with your GitHub repositories, then create the following files:
   - File containing as k=v pairs the following parameters
     ```text
-    // path: fork-konflux-ci/idp/secret-plugin/secrets/secret_vars.yaml
+    // path: <YOUR_PATH>/secret_vars.yaml
     smee_url: https://smee.io/<SMEE_TOKEN>
   
     github_app_id: <GITHUB_AP_ID>
@@ -93,17 +93,10 @@ idp create \
     **Warning**: The `GITHUB_PRIVATE_KEY` is the GitHub application private key file converted as one line string here and where the `\n` has been replaced with `#`. TODO: To be improved !
   - A kubernetes secret resource file `secrets.yaml` using the following command:
     ```bash
-    kubectl create secret generic argocd-secret-vars -n argocd --from-file=secret_vars.yaml=fork-konflux-ci/idp/secret-plugin/secrets/secret_vars.yaml \
+    kubectl create secret generic argocd-secret-vars -n argocd --from-file=secret_vars.yaml=<YOUR_PATH>/secret_vars.yaml \
        --dry-run=client -o yaml >> fork-konflux-ci/idp/secret-plugin/manifests/secrets.yaml
     ```
-    **Note**: Add the following annotation to the Secret created to be sure that Argocd will install it before the Argocd Secret plugin !
-    ```yaml
-    metadata:
-      name: argocd-secret-vars
-      namespace: argocd
-      annotations:
-        argocd.argoproj.io/sync-wave: "-1"
-    ```
+
 - Deploy then the additional packages able to install/configure: smee, image-controller, etc
 ```bash
 idp create \
@@ -136,7 +129,7 @@ chmod +x /usr/local/bin/kind
 git clone https://github.com/konflux-ci/konflux-ci.git
 cd konflux-ci
 ```
-- Rename the file `kind-config.yaml` to `my-kind-config.yaml` and add a mlountPoint to share your registry creds file as documented [here](https://kind.sigs.k8s.io/docs/user/private-registries/#mount-a-config-file-to-each-node).
+- Rename the file `kind-config.yaml` to `my-kind-config.yaml` and add a mountPoint to share your registry creds file as documented [here](https://kind.sigs.k8s.io/docs/user/private-registries/#mount-a-config-file-to-each-node).
 ```yaml
   extraMounts:
   - containerPath: /var/lib/kubelet/config.json
